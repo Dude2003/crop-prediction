@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Crop Predictor</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>🌾 Smart Crop Predictor</header>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2>Welcome, {{ user.fullname }}!</h2>
+            <div class="action-buttons">
+                <a href="{{ url_for('home') }}" class="btn">New Prediction</a>
+                <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
+            </div>
+        </div>
+        
+        <h3>Your Prediction History</h3>
+        
+        {% if predictions %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Crop</th>
+                        <th>N-P-K</th>
+                        <th>pH</th>
+                        <th>Temp</th>
+                        <th>Humidity</th>
+                        <th>Rainfall</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in predictions %}
+                    <tr>
+                        <td>{{ pred.date_predicted.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ pred.predicted_crop }}</td>
+                        <td>{{ pred.nitrogen }}-{{ pred.phosphorus }}-{{ pred.potassium }}</td>
+                        <td>{{ pred.ph }}</td>
+                        <td>{{ pred.temperature }}°C</td>
+                        <td>{{ pred.humidity }}%</td>
+                        <td>{{ pred.rainfall }} mm</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-predictions">
+                <p>You haven't made any predictions yet.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        &copy; 2025 SmartAgro AI | Made with 🌱
+    </footer>
+</body>
+</html>

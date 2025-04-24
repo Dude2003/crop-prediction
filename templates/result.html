@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result - Crop Predictor</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <header>
+        <div class="title">
+            <span class="title-icon">🌾</span> Smart Crop Predictor
+        </div>
+        <div class="nav-buttons">
+            <a href="{{ url_for('home') }}" class="nav-button">New Prediction</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-button">Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="nav-button logout">Logout</a>
+        </div>
+        <div class="rain">
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+            <div class="rain-drop"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2>Prediction Result</h2>
+        
+        <div class="success-animation">
+            <div class="plant-stem">
+                <div class="plant-leaf"></div>
+                <div class="plant-leaf"></div>
+                <div class="plant-leaf"></div>
+                <div class="plant-leaf"></div>
+                <div class="plant-flower"></div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; background-color: var(--accent-light); border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: var(--primary); margin-top: 0;">{{ prediction_text }}</h3>
+            <p>Based on the soil and climate parameters you provided, this is the optimal crop for your farm.</p>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+            <a href="{{ url_for('home') }}" class="btn">Make Another Prediction</a>
+            <a href="{{ url_for('dashboard') }}" class="btn">View All Predictions</a>
+        </div>
+        
+        <div class="crop-decoration"></div>
+    </div>
+
+    <footer>
+        &copy; 2025 SmartAgro AI | Made with <span style="color: #a3b18a;">🌱</span>
+    </footer>
+
+    <script>
+        // Add button ripple effect
+        const buttons = document.querySelectorAll('.btn, .nav-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const x = e.clientX - e.target.getBoundingClientRect().left;
+                const y = e.clientY - e.target.getBoundingClientRect().top;
+                
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    </script>
+</body>
+</html>
