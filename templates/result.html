@@ -44,6 +44,12 @@
         <div style="text-align: center; padding: 20px; background-color: var(--accent-light); border-radius: 8px; margin-bottom: 20px;">
             <h3 style="color: var(--primary); margin-top: 0;">{{ prediction_text }}</h3>
             <p>Based on the soil and climate parameters you provided, this is the optimal crop for your farm.</p>
+            
+            {% if crop_image %}
+            <div style="margin: 20px 0;">
+                <img src="{{ crop_image }}" alt="Predicted Crop" style="max-width: 100%; height: auto; max-height: 300px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            </div>
+            {% endif %}
         </div>
         
         <div style="display: flex; justify-content: space-between; margin-top: 30px;">

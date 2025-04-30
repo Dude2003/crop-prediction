@@ -64,6 +64,36 @@ VALID_RANGES = {
     'rainfall': {'min': 0, 'max': 3000, 'error': 'Rainfall should be between 0-3000 mm'}
 }
 
+# Mapping of crop names to their image files
+CROP_IMAGES = {
+    'rice': 'rice.jpg',
+    'maize': 'maize.jpg',
+    'chickpea': 'chickpea.jpg',
+    'kidneybeans': 'kidneybeans.jpg',
+    'pigeonpeas': 'pigeonpeas.jpg',
+    'mothbeans': 'mothbeans.jpg',
+    'mungbean': 'mungbean.jpg',
+    'blackgram': 'blackgram.jpg',
+    'lentil': 'lentil.jpg',
+    'pomegranate': 'pomegranate.jpg',
+    'banana': 'banana.jpg',
+    'mango': 'mango.jpg',
+    'grapes': 'grapes.jpg',
+    'watermelon': 'watermelon.jpg',
+    'muskmelon': 'muskmelon.jpg',
+    'apple': 'apple.jpg',
+    'orange': 'orange.jpg',
+    'papaya': 'papaya.jpg',
+    'coconut': 'coconut.jpg',
+    'cotton': 'cotton.jpg',
+    'jute': 'jute.jpg',
+    'coffee': 'coffee.jpg',
+    # Add all other crops your model can predict
+}
+
+# Default image if crop image is not found
+DEFAULT_CROP_IMAGE = 'default_crop.jpg'
+
 def validate_inputs(inputs):
     """Validate if inputs are within realistic agricultural ranges"""
     validation_errors = []
@@ -223,13 +253,17 @@ def predict():
         db.session.add(new_prediction)
         db.session.commit()
         
-        return render_template('result.html', prediction_text=f'Recommended Crop: {crop}')
+        # Get the image filename for the predicted crop
+        crop_image = CROP_IMAGES.get(crop.lower(), DEFAULT_CROP_IMAGE)
+        crop_image_path = url_for('static', filename=f'images/{crop_image}')
+        
+        return render_template('result.html', 
+                              prediction_text=f'Recommended Crop: {crop}',
+                              crop_image=crop_image_path)
     except Exception as e:
         app.logger.error(f"Prediction error: {e}")
         flash('An error occurred during prediction.')
         return redirect(url_for('home'))
-
-# The anonymous prediction route is removed as we want users to login first
 
 if __name__ == '__main__':
     with app.app_context():
