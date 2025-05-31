@@ -7,13 +7,15 @@
 </head>
 <body>
     <header>
-        <div class="title">
-            <span class="title-icon">🌾</span> Smart Crop Predictor
-        </div>
-        <div class="nav-buttons">
-            <a href="{{ url_for('home') }}" class="nav-button">New Prediction</a>
-            <a href="{{ url_for('dashboard') }}" class="nav-button">Dashboard</a>
-            <a href="{{ url_for('logout') }}" class="nav-button logout">Logout</a>
+        <div class="header-content">
+            <div class="title">
+                <span class="title-icon">🌾</span> Smart Crop Predictor
+            </div>
+            <div class="nav-buttons">
+                <a href="{{ url_for('home') }}" class="nav-button">New Prediction</a>
+                <a href="{{ url_for('dashboard') }}" class="nav-button">Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="nav-button logout">Logout</a>
+            </div>
         </div>
         <div class="rain">
             <div class="rain-drop"></div>
@@ -29,7 +31,7 @@
     </header>
 
     <div class="container">
-        <h2>Prediction Result</h2>
+        <h2> Prediction Result</h2>
         
         <div class="success-animation">
             <div class="plant-stem">
@@ -41,27 +43,36 @@
             </div>
         </div>
         
-        <div style="text-align: center; padding: 20px; background-color: var(--accent-light); border-radius: 8px; margin-bottom: 20px;">
-            <h3 style="color: var(--primary); margin-top: 0;">{{ prediction_text }}</h3>
-            <p>Based on the soil and climate parameters you provided, this is the optimal crop for your farm.</p>
+        <div class="prediction-result-card">
+            <div class="result-header">
+                <span class="result-icon">🌱</span>
+                <h3>{{ prediction_text }}</h3>
+            </div>
+            <p class="result-description">Based on the soil and climate parameters you provided, this is the optimal crop for your farm.</p>
             
             {% if crop_image %}
-            <div style="margin: 20px 0;">
-                <img src="{{ crop_image }}" alt="Predicted Crop" style="max-width: 100%; height: auto; max-height: 300px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <div class="crop-image-container">
+                <img src="{{ crop_image }}" alt="Predicted Crop" class="crop-image">
             </div>
             {% endif %}
         </div>
         
-        <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-            <a href="{{ url_for('home') }}" class="btn">Make Another Prediction</a>
-            <a href="{{ url_for('dashboard') }}" class="btn">View All Predictions</a>
+        <div class="action-buttons-container">
+            <a href="{{ url_for('home') }}" class="btn primary-btn">
+                <span class="btn-icon">🔄</span>
+                Make Another Prediction
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn secondary-btn">
+                <span class="btn-icon">📊</span>
+                View All Predictions
+            </a>
         </div>
         
         <div class="crop-decoration"></div>
     </div>
 
     <footer>
-        &copy; 2025 SmartAgro AI | Made with <span style="color: #a3b18a;">🌱</span>
+        &copy; 2025 SmartAgro AI | <span style="color: #a3b18a;">🌱</span> for sustainable farming
     </footer>
 
     <script>
@@ -84,6 +95,204 @@
                 }, 600);
             });
         });
+
+        // Add floating animation to result card
+        const resultCard = document.querySelector('.prediction-result-card');
+        if (resultCard) {
+            resultCard.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            resultCard.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        }
     </script>
+
+    <style>
+        /* Additional styles for result page */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-buttons {
+            position: static;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .prediction-result-card {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--accent-light), rgba(255, 255, 255, 0.9));
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(163, 177, 138, 0.3);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .result-header h3 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .result-icon {
+            font-size: 1.8rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .result-description {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .crop-image-container {
+            margin: 2rem auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .crop-image {
+            max-width: 100%;
+            width: 350px;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            border: 3px solid var(--accent-light);
+        }
+
+        .crop-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+        }
+
+        .action-buttons-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: white;
+        }
+
+        .secondary-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: var(--text-dark);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-icon {
+            font-size: 1.1rem;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .nav-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .nav-button {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            .action-buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .crop-image {
+                width: 280px;
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.2rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .prediction-result-card {
+                padding: 1.5rem;
+            }
+
+            .result-header h3 {
+                font-size: 1.2rem;
+            }
+
+            .crop-image {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
 </body>
 </html>

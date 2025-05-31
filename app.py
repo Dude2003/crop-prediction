@@ -4,8 +4,9 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 import pickle
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import secrets
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a random secret key
@@ -34,6 +35,8 @@ class User(UserMixin, db.Model):
     fullname = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    reset_token = db.Column(db.String(100))
+    reset_token_expiry = db.Column(db.DateTime)
     predictions = db.relationship('Prediction', backref='user', lazy=True)
 
 class Prediction(db.Model):
@@ -88,7 +91,6 @@ CROP_IMAGES = {
     'cotton': 'cotton.jpg',
     'jute': 'jute.jpg',
     'coffee': 'coffee.jpg',
-    # Add all other crops your model can predict
 }
 
 # Default image if crop image is not found
@@ -179,6 +181,83 @@ def login():
     
     return render_template('login.html')
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            # Generate a secure token
+            token = secrets.token_urlsafe(32)
+            user.reset_token = token
+            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
+            db.session.commit()
+            
+            # Create reset link
+            reset_link = url_for('reset_password', token=token, _external=True)
+            
+            # Console output for college project demonstration
+            print("\n" + "="*60)
+            print("🔐 PASSWORD RESET REQUEST - COLLEGE PROJECT DEMO")
+            print("="*60)
+            print(f"👤 User: {user.fullname}")
+            print(f"📧 Email: {email}")
+            print(f"🔗 Reset Link: {reset_link}")
+            print(f"⏰ Token Expires: {user.reset_token_expiry.strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"🔑 Token: {token}")
+            print("="*60)
+            print("📝 INSTRUCTIONS:")
+            print("   1. Copy the reset link above")
+            print("   2. Paste it in your browser")
+            print("   3. Set a new password")
+            print("="*60 + "\n")
+            
+            flash('Password reset link has been generated! Check the console for the link.', 'success')
+        else:
+            # Same message for security (don't reveal if email exists)
+            print(f"\n⚠️  Password reset attempted for non-existent email: {email}")
+            flash('If your email exists in our system, a password reset link has been sent.', 'info')
+            
+        return render_template('forgot_password.html')
+    
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    
+    user = User.query.filter_by(reset_token=token).first()
+    
+    # Check if token exists and is valid
+    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
+        print(f"\n❌ Invalid or expired password reset attempt with token: {token}")
+        flash('Invalid or expired password reset link. Please request a new one.')
+        return redirect(url_for('forgot_password'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if password != confirm_password:
+            flash("Passwords don't match.")
+        else:
+            # Update password and clear reset token
+            user.password_hash = generate_password_hash(password)
+            user.reset_token = None
+            user.reset_token_expiry = None
+            db.session.commit()
+            
+            print(f"\n✅ Password successfully reset for user: {user.email}")
+            flash('Your password has been reset successfully. Please login with your new password.', 'success')
+            return redirect(url_for('login'))
+    
+    return render_template('reset_password.html', token=token)
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -253,6 +332,11 @@ def predict():
         db.session.add(new_prediction)
         db.session.commit()
         
+        # Console output for prediction (useful for debugging)
+        print(f"\n🌱 New crop prediction made by {current_user.fullname}:")
+        print(f"   Predicted crop: {crop}")
+        print(f"   Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
+        
         # Get the image filename for the predicted crop
         crop_image = CROP_IMAGES.get(crop.lower(), DEFAULT_CROP_IMAGE)
         crop_image_path = url_for('static', filename=f'images/{crop_image}')
@@ -265,7 +349,30 @@ def predict():
         flash('An error occurred during prediction.')
         return redirect(url_for('home'))
 
+# Development helper route (remove in production)
+@app.route('/dev-users')
+def dev_users():
+    """Development route to see all users - remove in production"""
+    if app.debug:
+        users = User.query.all()
+        print("\n" + "="*40)
+        print("👥 REGISTERED USERS:")
+        print("="*40)
+        for user in users:
+            print(f"   Name: {user.fullname}")
+            print(f"   Email: {user.email}")
+            print(f"   ID: {user.id}")
+            print("-" * 30)
+        print("="*40 + "\n")
+        return f"Found {len(users)} users. Check console for details."
+    else:
+        return "Not available in production mode"
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create database tables
+        print("\n🚀 Smart Crop Predictor - College Project")
+        print("📊 Database initialized successfully")
+        print("🔗 Access the application at: http://127.0.0.1:5000")
+        print("💡 Password reset links will appear in this console\n")
     app.run(debug=True)
